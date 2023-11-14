@@ -1,3 +1,3 @@
-# **Computer Graphics mini project** 
+# 3D rally car Game
 
-*Creating a 3D rally car Game,*
+*Using Ursina engine*
