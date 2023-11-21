@@ -25,3 +25,44 @@ class SandTrack(Entity):
 
         self.cacti = Entity(model = "cacti-sand.obj", texture = "cactus-sand.png", position = (-80, -50, -75), scale = (18, 18, 18), rotation = (0, 270, 0))
         self.rocks = Entity(model = "rocks-sand.obj", texture = "rock-sand.png", position = (-80, -50, -75), scale = (18, 18, 18), rotation = (0, 270, 0))
+
+        self.track = [
+            self.finish_line, self.boundaries, self.wall1, self.wall2, self.wall3, 
+            self.wall4, self.wall_trigger
+        ]
+
+        self.details = [
+            self.cacti, self.rocks
+        ]
+        
+        self.disable()
+
+        for i in self.track:
+            i.disable()
+        for i in self.details:
+            i.disable()
+
+        self.played = False
+        self.unlocked = True
+
+    def update(self):
+        if self.car.simple_intersects(self.finish_line):
+            if self.car.anti_cheat == 1:
+                self.car.timer_running = True
+                self.car.anti_cheat = 0
+                if self.car.gamemode != "drift":
+                    invoke(self.car.reset_timer, delay = 3)
+
+                self.car.check_highscore()
+
+                self.wall1.enable()
+                self.wall2.enable()
+                self.wall3.disable()
+                self.wall4.disable()
+
+        if self.car.simple_intersects(self.wall_trigger):
+            self.wall1.disable()
+            self.wall2.disable()
+            self.wall3.enable()
+            self.wall4.enable()
+            self.car.anti_cheat = 1
