@@ -42,6 +42,17 @@ To get started with the SF rally drifting , follow these steps:
    ```
 4. **start drifting:**
 
+## Controls
+W / Up Arrow: Accelerate
+A / Left Arrow: Turn Left
+D / Right Arrow: Turn Right
+
+## Contributing 
+Contributions are welcome! Whether you want to report a bug, suggest new features, or contribute code, feel free to open an issue or submit a pull request.
+
+
+
+
 
    
 
