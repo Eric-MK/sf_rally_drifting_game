@@ -805,7 +805,7 @@ class Car(Entity):
                     "grass_track": True,
                     # Add more tracks if needed
                 },
-                "beat_mandaw": {
+                "beat_rally": {
                     "sand_track": True,
                     "grass_track": True
                 },
@@ -819,8 +819,8 @@ class Car(Entity):
                 }
             }
 
-            self.beat_mandaw_sand_track = self.unlocked["beat_mandaw"]["sand_track"]
-            self.beat_mandaw_grass_track = self.unlocked["beat_mandaw"]["grass_track"]
+            self.beat_mandaw_sand_track = self.unlocked["beat_rally"]["sand_track"]
+            self.beat_mandaw_grass_track = self.unlocked["beat_rally"]["grass_track"]
 
             self.sports_unlocked = self.unlocked["cars"]["sports_car"]
 
