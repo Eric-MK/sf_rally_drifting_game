@@ -698,3 +698,285 @@ class Car(Entity):
                 if self.last_count >= 5:
                     self.highscore_count = self.last_count
                     self.animate_text(self.highscore)
+            if self.last_count <= self.highscore_count and self.last_count != 0:
+                if self.last_count >= 5:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+                if self.highscore_count <= 6:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+
+            if self.sand_track.enabled:
+                self.sand_track_hs = float(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_hs = float(self.highscore_count)
+            self.save_highscore()
+
+        elif self.gamemode == "time trial":
+            self.last_count = self.count
+            if self.start_time:
+                self.laps += 1
+                self.animate_text(self.laps_text, 1.7, 1.1)
+            self.start_time = True
+
+        elif self.gamemode == "drift":
+            self.drift_score += self.count
+
+            if self.drift_score >= self.highscore_count:
+                self.highscore_count = self.drift_score
+                if self.highscore_count != 0:
+                    self.animate_text(self.highscore)
+
+            self.reset_count = self.drift_score
+            self.reset_count_timer.enable()
+            self.timer.disable()
+            invoke(self.reset_count_timer.disable, delay = 3)
+            invoke(self.timer.enable, delay = 3)
+
+            self.reset_drift_score()
+            
+            self.highscore.text = str(int(self.highscore_count))
+            
+            if self.sand_track.enabled:
+                self.sand_track_drift = int(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_drift = int(self.highscore_count)
+
+            self.save_highscore()
+
+    def save_highscore(self):
+        """
+        Saves the highscore to a json file
+        """
+        self.highscore_dict = {
+            "race": {
+                "sand_track": self.sand_track_hs,
+                "grass_track": self.grass_track_hs
+            },
+            
+            "time_trial": {
+                "sand_track": self.sand_track_laps,
+                "grass_track": self.grass_track_laps
+            },
+
+            "drift": {
+                "sand_track": self.sand_track_drift,
+                "grass_track": self.grass_track_drift
+            }
+        }
+
+        with open(self.highscore_path, "w") as hs:
+            json.dump(self.highscore_dict, hs, indent = 4)
+
+    def reset_highscore(self):
+        """
+        Resets all of the highscores
+        """
+        self.sand_track_hs = 0.0
+        self.grass_track_hs = 0.0
+        self.snow_track_hs = 0.0
+        self.forest_track_hs = 0.0
+        self.savannah_track_hs = 0.0
+        self.lake_track_hs = 0.0
+
+        self.sand_track_laps = 0
+        self.grass_track_laps = 0
+        self.snow_track_laps = 0
+        self.forest_track_laps = 0
+        self.savannah_track_laps = 0
+        self.lake_track_laps = 0
+
+        self.sand_track_drift = 0.0
+        self.grass_track_drift = 0.0
+        self.snow_track_drift = 0.0
+        self.forest_track_drift = 0.0
+        self.savannah_track_drift = 0.0
+        self.lake_track_drift = 0.0
+
+        self.save_highscore()
+
+    def set_unlocked(self):
+            """
+            Sets the initial unlock status for tracks, cars, and game modes.
+            """
+            self.unlocked = {
+                "tracks": {
+                    "sand_track": True,
+                    "grass_track": True,
+                    # Add more tracks if needed
+                },
+                "beat_mandaw": {
+                    "sand_track": True,
+                    "grass_track": True
+                },
+                "cars": {
+                    "sports_car": True,
+                    # Add more cars if needed
+                },
+                "gamemodes": {
+                    "drift": True,
+                    # Add more game modes if needed
+                }
+            }
+
+            self.beat_mandaw_sand_track = self.unlocked["beat_mandaw"]["sand_track"]
+            self.beat_mandaw_grass_track = self.unlocked["beat_mandaw"]["grass_track"]
+
+            self.sports_unlocked = self.unlocked["cars"]["sports_car"]
+
+            self.drift_unlocked = self.unlocked["gamemodes"]["drift"]
+
+
+    def save_unlocked(self):
+        """
+        Saves the unlocks to a json file
+        """
+        self.unlocked_dict = {
+        "tracks": {
+            "sand_track": self.unlocked["tracks"]["sand_track"],
+            "grass_track": self.unlocked["tracks"]["grass_track"],
+        },
+        "beat_mandaw": {
+            "sand_track": self.unlocked["beat_mandaw"]["sand_track"],
+            "grass_track": self.unlocked["beat_mandaw"]["grass_track"]
+        },
+        "cars": {
+            "sports_car": self.unlocked["cars"]["sports_car"],
+        },
+        "gamemodes": {
+            "drift": self.unlocked["gamemodes"]["drift"],
+        }
+    }
+        
+
+        with open(self.unlocked_json, "w") as hs:
+            json.dump(self.unlocked_dict, hs, indent = 4)
+    
+    def reset_timer(self):
+        """
+        Resets the timer
+        """
+        self.count = self.reset_count
+        self.timer.enable()
+        self.reset_count_timer.disable()
+
+    def reset_drift(self):
+        """
+        Resets the drift
+        """
+        self.animate_text(self.drift_text, 1.7, 1.1)
+        invoke(self.drift_text.animate_position, (-0.8, 0.43), 0.3, curve = curve.out_expo, delay = 0.3)
+        invoke(self.reset_drift_text, delay = 0.4)
+        self.drift_swush.play()
+        self.get_hundred = False
+        self.get_thousand = False
+        self.get_fivethousand = False
+
+    def reset_drift_text(self):
+        """
+        Resets the drift text
+        """
+        self.drift_score += self.count
+        self.drift_multiplier = 20
+        self.count = 0
+        self.drifting = False
+        invoke(setattr, self.drift_text, "visible", False, delay = 0.1)
+        invoke(setattr, self.drift_text, "position", (0, 0.43), delay = 0.3)
+
+    def reset_drift_score(self):
+        self.count = 0
+        self.drift_score = 0
+        self.drift_multiplier = 20
+        self.drifting = False
+
+        if self.sand_track.enabled:
+            self.drift_time = 0.0
+        elif self.grass_track.enabled:
+            self.drift_time = 30.0
+
+    def animate_text(self, text, top = 1.2, bottom = 0.6):
+        """
+        Animates the scale of text
+        """
+        if self.gamemode != "drift":
+            if self.last_count > 1:
+                text.animate_scale((top, top, top), curve = curve.out_expo)
+                invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+        else:
+            text.animate_scale((top, top, top), curve = curve.out_expo)
+            invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+
+    def shake_camera(self):
+        """
+        Camera shake
+        """
+        camera.x += random.randint(-1, 1) * self.shake_amount
+        camera.y += random.randint(-1, 1) * self.shake_amount
+        camera.z += random.randint(-1, 1) * self.shake_amount
+
+    def update_model_path(self):
+        """
+        Updates the model's file path for multiplayer
+        """
+        self.model_path = str(self.model).replace("render/scene/car/", "")
+        invoke(self.update_model_path, delay = 3)
+
+# Class for copying the car's position, rotation for multiplayer
+class CarRepresentation(Entity):
+    def __init__(self, car, position = (0, 0, 0), rotation = (0, 65, 0)):
+        super().__init__(
+            parent = scene,
+            model = "sports-car.obj",
+            texture = "sports-red.png",
+            position = position,
+            rotation = rotation,
+            scale = (1, 1, 1)
+        )
+
+        self.model_path = str(self.model).replace("render/scene/car_representation/", "")
+        
+        self.viking_helmet = Entity(model = "viking_helmet.obj", texture = "viking_helmet.png", parent = self)
+        self.duck = Entity(model = "duck.obj", parent = self)
+        self.banana = Entity(model = "banana.obj", parent = self)
+        self.surfinbird = Entity(model = "surfinbird.obj", texture = "surfinbird.png", parent = self)
+        self.surfboard = Entity(model = "surfboard.obj", texture = "surfboard.png", parent = self.surfinbird)
+        self.viking_helmet.disable()
+        self.duck.disable()
+        self.banana.disable()
+        self.surfinbird.disable()
+
+        self.cosmetics = [self.viking_helmet, self.duck, self.banana, self.surfinbird]
+
+        self.text_object = None
+        self.highscore = 0.0
+
+        invoke(self.update_representation, delay = 5)
+
+    def update_representation(self):
+        for cosmetic in self.cosmetics:
+            if cosmetic.enabled:
+                if self.model_path == "lorry.obj":
+                    cosmetic.y = 1.5
+                elif self.model_path == "limo.obj":
+                    cosmetic.y = 0.1
+                elif self.model_path == "sports-car.obj" or self.model_path == "muscle-car.obj":
+                    cosmetic.y = 0
+
+        invoke(self.update_representation, delay = 5)
+
+# Username shown above the car
+class CarUsername(Text):
+    def __init__(self, car):
+        super().__init__(
+            parent = car,
+            text = "Guest",
+            y = 3,
+            scale = 30,
+            color = color.white,
+            billboard = True
+        )
+    
+        self.username_text = "Guest"
+
+    def update(self):
+        self.text = self.username_text
