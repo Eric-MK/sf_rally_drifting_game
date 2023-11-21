@@ -8,10 +8,7 @@ Welcome to the Drift Racing Game, an exciting and immersive racing experience bu
 - Features
 - Getting Started
 - Controls
-- Gameplay
-- Screenshots
 - Contributing
-- License
 
 
 ## Description
