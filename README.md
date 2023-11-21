@@ -30,4 +30,19 @@ To get started with the SF rally drifting , follow these steps:
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/Eric-MK/sf_rally_drifting_game.git
-   cd drift-racing-game 
+   cd drift-racing-game
+   ```
+2. **Install Dependancies:**
+   ```bash
+   pip install ursina
+   ```
+3. **Run the Game:**
+   ```bash
+   python main.py
+   ```
+4. **start drifting:**
+
+
+   
+
+
