@@ -398,3 +398,585 @@ class Car(Entity):
                                 self.skid_sound.play()
                             self.start_trail = False
                             self.drifting = True
+                        else:
+                            self.drifting = False
+                    elif self.drift_speed > self.min_drift_speed + 2 and not self.start_trail:
+                        if self.pivot_rotation_distance < 60 or self.pivot_rotation_distance > -60:
+                            for trail in self.trails:
+                                if trail.trailing:
+                                    trail.end_trail()
+                            if self.audio:
+                                self.skid_sound.stop(False)
+                            self.start_trail = True
+                            self.drifting = False
+                        self.drifting = False
+                    if self.speed < 10:
+                        self.drifting = False
+            else:
+                self.driving = False
+                if self.speed > 1:
+                    self.speed -= self.friction * 5 * time.dt
+                elif self.speed < -1:
+                    self.speed += self.friction * 5 * time.dt
+                self.camera_rotation += self.friction * 20 * time.dt
+
+            # Braking
+            if held_keys[self.controls[2] or held_keys["down arrow"]]:
+                self.speed -= self.braking_strenth * time.dt
+                self.drift_speed -= 20 * time.dt
+                self.braking = True
+            else:
+                self.braking = False
+
+            # Audio
+            if self.driving or self.braking:
+                if self.start_sound and self.audio:
+                    if not self.drive_sound.playing:
+                        self.drive_sound.loop = True
+                        self.drive_sound.play()
+                    if not self.dirt_sound.playing:
+                        self.drive_sound.loop = True
+                        self.dirt_sound.play()
+                    self.start_sound = False
+
+                if self.speed > 0:
+                    self.drive_sound.volume = self.speed / 80 * self.volume
+                elif self.speed < 0:
+                    self.drive_sound.volume = -self.speed / 80 * self.volume
+
+                if self.pivot_rotation_distance > 0:
+                    self.dirt_sound.volume = self.pivot_rotation_distance / 110 * self.volume
+                elif self.pivot_rotation_distance < 0:
+                    self.dirt_sound.volume = -self.pivot_rotation_distance / 110 * self.volume
+            else:
+                self.drive_sound.volume -= 0.5 * time.dt
+                self.dirt_sound.volume -= 0.5 * time.dt
+                if self.skid_sound.playing:
+                    self.skid_sound.stop(False)
+
+            # Hand Braking
+            if held_keys["space"]:
+                if self.rotation_speed < 0:
+                    self.rotation_speed -= 3 * time.dt
+                elif self.rotation_speed > 0:
+                    self.rotation_speed += 3 * time.dt
+                self.drift_speed -= 40 * time.dt
+                self.speed -= 20 * time.dt
+                self.max_rotation_speed = 3.0
+
+        # If Car is not hitting the ground, stop the trail
+        if self.graphics != "ultra fast":
+            if y_ray.distance > 2.5:
+                if self.trail_renderer1.trailing:
+                    for trail in self.trails:
+                        trail.end_trail()
+                    self.start_trail = True
+
+        # Steering
+        self.rotation_y += self.rotation_speed * 50 * time.dt
+
+        if self.rotation_speed > 0:
+            self.rotation_speed -= self.speed / 6 * time.dt
+        elif self.rotation_speed < 0:
+            self.rotation_speed += self.speed / 6 * time.dt
+
+        if self.speed > 1 or self.speed < -1:
+            if held_keys[self.controls[1]] or held_keys["left arrow"]:
+                self.rotation_speed -= self.steering_amount * time.dt
+                self.drift_speed -= 5 * time.dt
+                if self.speed > 1:
+                    self.speed -= self.turning_speed * time.dt
+                elif self.speed < 0:
+                    self.speed += self.turning_speed / 5 * time.dt
+            elif held_keys[self.controls[3]] or held_keys["right arrow"]:
+                self.rotation_speed += self.steering_amount * time.dt
+                self.drift_speed -= 5 * time.dt
+                if self.speed > 1:
+                    self.speed -= self.turning_speed * time.dt
+                elif self.speed < 0:
+                    self.speed += self.turning_speed / 5 * time.dt
+            else:
+                self.drift_speed += 15 * time.dt
+                if self.rotation_speed > 0:
+                    self.rotation_speed -= 5 * time.dt
+                elif self.rotation_speed < 0:
+                    self.rotation_speed += 5 * time.dt
+        else:
+            self.rotation_speed = 0
+
+        # Cap the speed
+        if self.speed >= self.topspeed:
+            self.speed = self.topspeed
+        if self.speed <= -15:
+            self.speed = -15
+        if self.speed <= 0:
+            self.pivot.rotation_y = self.rotation_y
+
+        # Cap the drifting
+        if self.drift_speed <= self.min_drift_speed:
+            self.drift_speed = self.min_drift_speed
+        if self.drift_speed >= self.max_drift_speed:
+            self.drift_speed = self.max_drift_speed
+
+        # Cap the steering
+        if self.rotation_speed >= self.max_rotation_speed:
+            self.rotation_speed = self.max_rotation_speed
+        if self.rotation_speed <= -self.max_rotation_speed:
+            self.rotation_speed = -self.max_rotation_speed
+
+        # Respawn
+        if held_keys["g"]:
+            self.reset_car()
+
+        # Reset the car's position if y value is less than -100
+        if self.y <= -100:
+            self.reset_car()
+
+        # Reset the car's position if y value is greater than 300
+        if self.y >= 300:
+            self.reset_car()
+
+        # Cap the camera rotation
+        if self.camera_rotation >= 40:
+            self.camera_rotation = 40
+        elif self.camera_rotation <= 30:
+            self.camera_rotation = 30
+
+        # Camera Shake
+        if self.speed >= 1 and self.driving:
+            self.can_shake = True
+            if self.pivot_rotation_distance > 0:
+                self.shake_amount = self.speed * self.pivot_rotation_distance / 200
+            elif self.pivot_rotation_distance < 0:
+                self.shake_amount = self.speed * -self.pivot_rotation_distance / 200
+        else:
+            self.can_shake = False
+
+        # Cap the camera shake amount
+        if self.shake_amount <= 0:
+            self.shake_amount = 0
+        if self.shake_amount >= 0.03:
+            self.shake_amount = 0.03
+
+        # If the camera can shake and camera shake is on, then shake the camera
+        if self.can_shake and self.camera_shake_option and self.camera_angle != "first-person":
+            self.shake_camera()
+
+        # Rotation
+        self.rotation_parent.position = self.position
+
+        # Lerps the car's rotation to the rotation parent's rotation (Makes it smoother)
+        self.rotation_x = lerp(self.rotation_x, self.rotation_parent.rotation_x, 20 * time.dt)
+        self.rotation_z = lerp(self.rotation_z, self.rotation_parent.rotation_z, 20 * time.dt)
+
+        # Check if car is hitting the ground
+        if self.visible:
+            if y_ray.distance <= self.scale_y * 1.7 + abs(movementY):
+                self.velocity_y = 0
+                # Check if hitting a wall or steep slope
+                if y_ray.world_normal.y > 0.7 and y_ray.world_point.y - self.world_y < 0.5:
+                    # Set the y value to the ground's y value
+                    self.y = y_ray.world_point.y + 1.4
+                    self.hitting_wall = False
+                else:
+                    # Car is hitting a wall
+                    self.hitting_wall = True
+
+                if self.copy_normals:
+                    self.ground_normal = self.position + y_ray.world_normal
+                else:
+                    self.ground_normal = self.position + (0, 180, 0)
+
+                # Rotates the car according to the grounds normals
+                if not self.hitting_wall:
+                    self.rotation_parent.look_at(self.ground_normal, axis = "up")
+                    self.rotation_parent.rotation = (0, self.rotation_y + 180, 0)
+                else:
+                    self.rotation_parent.rotation = self.rotation
+
+                if self.start_fall and self.audio:
+                    self.hit_sound.volume = self.volume / 2
+                    self.hit_sound.play()
+                    self.start_fall = False
+            else:
+                self.y += movementY * 50 * time.dt
+                self.velocity_y -= 50 * time.dt
+                self.rotation_parent.rotation = self.rotation
+                self.start_fall = True
+
+        # Movement
+        movementX = self.pivot.forward[0] * self.speed * time.dt
+        movementZ = self.pivot.forward[2] * self.speed * time.dt
+
+        # Collision Detection
+        if movementX != 0:
+            direction = (sign(movementX), 0, 0)
+            x_ray = raycast(origin = self.world_position, direction = direction, ignore = [self, ])
+
+            if x_ray.distance > self.scale_x / 2 + abs(movementX):
+                self.x += movementX
+
+        if movementZ != 0:
+            direction = (0, 0, sign(movementZ))
+            z_ray = raycast(origin = self.world_position, direction = direction, ignore = [self, ])
+
+            if z_ray.distance > self.scale_z / 2 + abs(movementZ):
+                self.z += movementZ
+
+    def reset_car(self):
+        """
+        Resets the car
+        """
+        if self.sand_track.enabled:
+            self.position = (-63, -40, -7)
+            self.rotation = (0, 90, 0)
+        elif self.grass_track.enabled:
+            self.position = (-80, -30, 18.5)
+            self.rotation = (0, 90, 0)
+        camera.world_rotation_y = self.rotation_y
+        self.speed = 0
+        self.velocity_y = 0
+        self.anti_cheat = 1
+        self.timer_running = False
+        if self.gamemode == "race":
+            self.count = 0.0
+            self.reset_count = 0.0
+        elif self.gamemode == "time trial":
+            self.count = 100.0
+            self.reset_count = 100.0
+            self.laps = 0
+            self.start_time = False
+        elif self.gamemode == "drift":
+            self.reset_drift_score()
+        for trail in self.trails:
+            if trail.trailing:
+                trail.end_trail()
+        self.start_trail = True
+        self.start_sound = True
+        if self.audio:
+            if self.skid_sound.playing:
+                self.skid_sound.stop(False)
+            if self.dirt_sound.playing:
+                self.dirt_sound.stop(False)
+
+    def simple_intersects(self, entity):
+        """
+        A faster AABB intersects for detecting collision with
+        simple objects, doesn't take rotation into account
+        """
+        minXA = self.x - self.scale_x
+        maxXA = self.x + self.scale_x
+        minYA = self.y - self.scale_y + (self.scale_y / 2)
+        maxYA = self.y + self.scale_y - (self.scale_y / 2)
+        minZA = self.z - self.scale_z
+        maxZA = self.z + self.scale_z
+
+        minXB = entity.x - entity.scale_x + (entity.scale_x / 2)
+        maxXB = entity.x + entity.scale_x - (entity.scale_x / 2)
+        minYB = entity.y - entity.scale_y + (entity.scale_y / 2)
+        maxYB = entity.y + entity.scale_y - (entity.scale_y / 2)
+        minZB = entity.z - entity.scale_z + (entity.scale_z / 2)
+        maxZB = entity.z + entity.scale_z - (entity.scale_z / 2)
+        
+        return (
+            (minXA <= maxXB and maxXA >= minXB) and
+            (minYA <= maxYB and maxYA >= minYB) and
+            (minZA <= maxZB and maxZA >= minZB)
+        )
+
+    def check_highscore(self):
+        """
+        Checks if the score is lower than the highscore
+        """
+        if self.gamemode == "race":
+            self.last_count = self.count
+            self.reset_count = 0.0
+            self.timer.disable()
+            self.reset_count_timer.enable()
+
+            if self.highscore_count == 0:
+                if self.last_count >= 5:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+            if self.last_count <= self.highscore_count and self.last_count != 0:
+                if self.last_count >= 5:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+                if self.highscore_count <= 6:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+
+            if self.sand_track.enabled:
+                self.sand_track_hs = float(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_hs = float(self.highscore_count)
+            self.save_highscore()
+
+        elif self.gamemode == "time trial":
+            self.last_count = self.count
+            if self.start_time:
+                self.laps += 1
+                self.animate_text(self.laps_text, 1.7, 1.1)
+            self.start_time = True
+
+        elif self.gamemode == "drift":
+            self.drift_score += self.count
+
+            if self.drift_score >= self.highscore_count:
+                self.highscore_count = self.drift_score
+                if self.highscore_count != 0:
+                    self.animate_text(self.highscore)
+
+            self.reset_count = self.drift_score
+            self.reset_count_timer.enable()
+            self.timer.disable()
+            invoke(self.reset_count_timer.disable, delay = 3)
+            invoke(self.timer.enable, delay = 3)
+
+            self.reset_drift_score()
+            
+            self.highscore.text = str(int(self.highscore_count))
+            
+            if self.sand_track.enabled:
+                self.sand_track_drift = int(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_drift = int(self.highscore_count)
+
+            self.save_highscore()
+
+    def save_highscore(self):
+        """
+        Saves the highscore to a json file
+        """
+        self.highscore_dict = {
+            "race": {
+                "sand_track": self.sand_track_hs,
+                "grass_track": self.grass_track_hs
+            },
+            
+            "time_trial": {
+                "sand_track": self.sand_track_laps,
+                "grass_track": self.grass_track_laps
+            },
+
+            "drift": {
+                "sand_track": self.sand_track_drift,
+                "grass_track": self.grass_track_drift
+            }
+        }
+
+        with open(self.highscore_path, "w") as hs:
+            json.dump(self.highscore_dict, hs, indent = 4)
+
+    def reset_highscore(self):
+        """
+        Resets all of the highscores
+        """
+        self.sand_track_hs = 0.0
+        self.grass_track_hs = 0.0
+        self.snow_track_hs = 0.0
+        self.forest_track_hs = 0.0
+        self.savannah_track_hs = 0.0
+        self.lake_track_hs = 0.0
+
+        self.sand_track_laps = 0
+        self.grass_track_laps = 0
+        self.snow_track_laps = 0
+        self.forest_track_laps = 0
+        self.savannah_track_laps = 0
+        self.lake_track_laps = 0
+
+        self.sand_track_drift = 0.0
+        self.grass_track_drift = 0.0
+        self.snow_track_drift = 0.0
+        self.forest_track_drift = 0.0
+        self.savannah_track_drift = 0.0
+        self.lake_track_drift = 0.0
+
+        self.save_highscore()
+
+    def set_unlocked(self):
+            """
+            Sets the initial unlock status for tracks, cars, and game modes.
+            """
+            self.unlocked = {
+                "tracks": {
+                    "sand_track": True,
+                    "grass_track": True,
+                    # Add more tracks if needed
+                },
+                "beat_mandaw": {
+                    "sand_track": True,
+                    "grass_track": True
+                },
+                "cars": {
+                    "sports_car": True,
+                    # Add more cars if needed
+                },
+                "gamemodes": {
+                    "drift": True,
+                    # Add more game modes if needed
+                }
+            }
+
+            self.beat_mandaw_sand_track = self.unlocked["beat_mandaw"]["sand_track"]
+            self.beat_mandaw_grass_track = self.unlocked["beat_mandaw"]["grass_track"]
+
+            self.sports_unlocked = self.unlocked["cars"]["sports_car"]
+
+            self.drift_unlocked = self.unlocked["gamemodes"]["drift"]
+
+
+    def save_unlocked(self):
+        """
+        Saves the unlocks to a json file
+        """
+        self.unlocked_dict = {
+        "tracks": {
+            "sand_track": self.unlocked["tracks"]["sand_track"],
+            "grass_track": self.unlocked["tracks"]["grass_track"],
+        },
+        "beat_mandaw": {
+            "sand_track": self.unlocked["beat_mandaw"]["sand_track"],
+            "grass_track": self.unlocked["beat_mandaw"]["grass_track"]
+        },
+        "cars": {
+            "sports_car": self.unlocked["cars"]["sports_car"],
+        },
+        "gamemodes": {
+            "drift": self.unlocked["gamemodes"]["drift"],
+        }
+    }
+        
+
+        with open(self.unlocked_json, "w") as hs:
+            json.dump(self.unlocked_dict, hs, indent = 4)
+    
+    def reset_timer(self):
+        """
+        Resets the timer
+        """
+        self.count = self.reset_count
+        self.timer.enable()
+        self.reset_count_timer.disable()
+
+    def reset_drift(self):
+        """
+        Resets the drift
+        """
+        self.animate_text(self.drift_text, 1.7, 1.1)
+        invoke(self.drift_text.animate_position, (-0.8, 0.43), 0.3, curve = curve.out_expo, delay = 0.3)
+        invoke(self.reset_drift_text, delay = 0.4)
+        self.drift_swush.play()
+        self.get_hundred = False
+        self.get_thousand = False
+        self.get_fivethousand = False
+
+    def reset_drift_text(self):
+        """
+        Resets the drift text
+        """
+        self.drift_score += self.count
+        self.drift_multiplier = 20
+        self.count = 0
+        self.drifting = False
+        invoke(setattr, self.drift_text, "visible", False, delay = 0.1)
+        invoke(setattr, self.drift_text, "position", (0, 0.43), delay = 0.3)
+
+    def reset_drift_score(self):
+        self.count = 0
+        self.drift_score = 0
+        self.drift_multiplier = 20
+        self.drifting = False
+
+        if self.sand_track.enabled:
+            self.drift_time = 0.0
+        elif self.grass_track.enabled:
+            self.drift_time = 30.0
+
+    def animate_text(self, text, top = 1.2, bottom = 0.6):
+        """
+        Animates the scale of text
+        """
+        if self.gamemode != "drift":
+            if self.last_count > 1:
+                text.animate_scale((top, top, top), curve = curve.out_expo)
+                invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+        else:
+            text.animate_scale((top, top, top), curve = curve.out_expo)
+            invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+
+    def shake_camera(self):
+        """
+        Camera shake
+        """
+        camera.x += random.randint(-1, 1) * self.shake_amount
+        camera.y += random.randint(-1, 1) * self.shake_amount
+        camera.z += random.randint(-1, 1) * self.shake_amount
+
+    def update_model_path(self):
+        """
+        Updates the model's file path for multiplayer
+        """
+        self.model_path = str(self.model).replace("render/scene/car/", "")
+        invoke(self.update_model_path, delay = 3)
+
+# Class for copying the car's position, rotation for multiplayer
+class CarRepresentation(Entity):
+    def __init__(self, car, position = (0, 0, 0), rotation = (0, 65, 0)):
+        super().__init__(
+            parent = scene,
+            model = "sports-car.obj",
+            texture = "sports-red.png",
+            position = position,
+            rotation = rotation,
+            scale = (1, 1, 1)
+        )
+
+        self.model_path = str(self.model).replace("render/scene/car_representation/", "")
+        
+        self.viking_helmet = Entity(model = "viking_helmet.obj", texture = "viking_helmet.png", parent = self)
+        self.duck = Entity(model = "duck.obj", parent = self)
+        self.banana = Entity(model = "banana.obj", parent = self)
+        self.surfinbird = Entity(model = "surfinbird.obj", texture = "surfinbird.png", parent = self)
+        self.surfboard = Entity(model = "surfboard.obj", texture = "surfboard.png", parent = self.surfinbird)
+        self.viking_helmet.disable()
+        self.duck.disable()
+        self.banana.disable()
+        self.surfinbird.disable()
+
+        self.cosmetics = [self.viking_helmet, self.duck, self.banana, self.surfinbird]
+
+        self.text_object = None
+        self.highscore = 0.0
+
+        invoke(self.update_representation, delay = 5)
+
+    def update_representation(self):
+        for cosmetic in self.cosmetics:
+            if cosmetic.enabled:
+                if self.model_path == "lorry.obj":
+                    cosmetic.y = 1.5
+                elif self.model_path == "limo.obj":
+                    cosmetic.y = 0.1
+                elif self.model_path == "sports-car.obj" or self.model_path == "muscle-car.obj":
+                    cosmetic.y = 0
+
+        invoke(self.update_representation, delay = 5)
+
+# Username shown above the car
+class CarUsername(Text):
+    def __init__(self, car):
+        super().__init__(
+            parent = car,
+            text = "Guest",
+            y = 3,
+            scale = 30,
+            color = color.white,
+            billboard = True
+        )
+    
+        self.username_text = "Guest"
+
+    def update(self):
+        self.text = self.username_text
