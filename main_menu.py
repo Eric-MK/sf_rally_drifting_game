@@ -498,3 +498,502 @@ class MainMenu(Entity):
                 track.disable()
                 for i in track.track:
                     if track != sand_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != sand_track:
+                            i.disable()
+                        else:
+                            i.enable()
+            sand_track.enable()
+            self.car.position = (-40, 30, -175)
+            unlocked_text.disable()
+            if self.car.gamemode == "race":
+                highscore_text.enable()
+                highscore_text.text = "Highscore: " + str(round(self.car.sand_track_hs, 2)) 
+
+        def grass_track_hover():
+            for track in self.tracks:
+                track.disable()
+                for i in track.track:
+                    if track != grass_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != grass_track:
+                            i.disable()
+                        else:
+                            i.enable()
+                if self.car.graphics == "fast":
+                    grass_track.grass.disable()
+            grass_track.enable()
+            self.car.position = (20, 30, -100)
+            if grass_track.unlocked == False:
+                grass_track.alpha = 200
+                highscore_text.disable()
+                for i in grass_track.track:
+                    i.alpha = 200
+                for i in grass_track.details:
+                    i.alpha = 200
+            else:
+                if self.car.gamemode == "race":
+                    highscore_text.enable()
+                    highscore_text.text = "Highscore: " + str(round(self.car.grass_track_hs, 2))
+                unlocked_text.disable()
+                grass_track.alpha = 255
+
+        def snow_track_hover():
+            for track in self.tracks:
+                track.disable()
+                for i in track.track:
+                    if track != snow_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != snow_track:
+                            i.disable()
+                        else:
+                            i.enable()
+            snow_track.enable()
+            self.car.position = (20, 30, -80)
+            if snow_track.unlocked == False:
+                snow_track.alpha = 200
+                highscore_text.disable()
+                for i in snow_track.track:
+                    i.alpha = 200
+                for i in snow_track.details:
+                    i.alpha = 200
+            else:
+                if self.car.gamemode == "race":
+                    highscore_text.enable()
+                    highscore_text.text = "Highscore: " + str(round(self.car.snow_track_hs, 2))
+                unlocked_text.disable()
+                snow_track.alpha = 255
+        
+        def forest_track_hover():
+            for track in self.tracks:
+                track.disable()
+                for i in track.track:
+                    if track != forest_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != forest_track:
+                            i.disable()
+                        else:
+                            i.enable()
+            forest_track.enable()
+            self.car.position = (50, 30, -100)
+            if forest_track.unlocked == False:
+                forest_track.alpha = 200
+                highscore_text.disable()
+                for i in forest_track.track:
+                    i.alpha = 200
+                for i in forest_track.details:
+                    i.alpha = 200
+            else:
+                if self.car.gamemode == "race":
+                    highscore_text.enable()
+                    highscore_text.text = "Highscore: " + str(round(self.car.forest_track_hs, 2))
+                unlocked_text.disable()
+                forest_track.alpha = 255
+
+        def savannah_track_hover():
+            for track in self.tracks:
+                track.disable()
+                for i in track.track:
+                    if track != savannah_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != savannah_track:
+                            i.disable()
+                        else:
+                            i.enable()
+            savannah_track.enable()
+            self.car.position = (25, 30, -130)
+            if savannah_track.unlocked == False:
+                savannah_track.alpha = 200
+                highscore_text.disable()
+                for i in savannah_track.track:
+                    i.alpha = 200
+                for i in savannah_track.details:
+                    i.alpha = 200
+            else:
+                if self.car.gamemode == "race":
+                    highscore_text.enable()
+                    highscore_text.text = "Highscore: " + str(round(self.car.savannah_track_hs, 2))
+                unlocked_text.disable()
+                savannah_track.alpha = 255
+
+        def lake_track_hover():
+            for track in self.tracks:
+                track.disable()
+                for i in track.track:
+                    if track != lake_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != lake_track:
+                            i.disable()
+                        else:
+                            i.enable()
+                if self.car.graphics == "fast":
+                    lake_track.grass.disable()
+                    lake_track.rocks.disable()
+            lake_track.enable()
+            self.car.position = (140, 200, -350)
+            if lake_track.unlocked == False:
+                lake_track.alpha = 200
+                highscore_text.disable()
+                for i in lake_track.track:
+                    i.alpha = 200
+                for i in lake_track.details:
+                    i.alpha = 200
+            else:
+                if self.car.gamemode == "race":
+                    highscore_text.enable()
+                    highscore_text.text = "Highscore: " + str(round(self.car.lake_track_hs, 2))
+                unlocked_text.disable()
+                lake_track.alpha = 255
+
+        start_button = Button(text = "Start Game", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.02, parent = self.main_menu)
+        sand_track_button = Button(text = "Safari", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.3, x = -0.5, parent = self.maps_menu)
+        grass_track_button = Button(text = "Grass Plain", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.3, x = 0, parent = self.maps_menu)
+        snow_track_button = Button(text = "Snow Grounds", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.3, x = 0.5, parent = self.maps_menu)
+        forest_track_button = Button(text = "Forest", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.1, x = -0.5, parent = self.maps_menu)
+        savannah_track_button = Button(text = "Savannah Track", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.1, x = 0, parent = self.maps_menu)
+        lake_track_button = Button(text = "Lake Track", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.1, x = 0.5, parent = self.maps_menu)
+        back_button = Button(text = "<- Back", color = color.gray, scale_y = 0.05, scale_x = 0.2, y = 0.45, x = -0.65, parent = self.maps_menu)
+        
+        unlocked_text = Text("", scale = 1.5, color = color.orange, line_height = 2, origin = 0, y = -0.1, parent = self.maps_menu)
+        unlocked_text.disable()
+
+        highscore_text = Text("", scale = 1.2, color = color.white, line_height = 2, origin = 0, y = -0.07, parent = self.maps_menu)
+        highscore_text.disable()
+
+        
+
+        self.leaderboard_background = Entity(model = "quad", color = color.hex("0099ff"), alpha = 100, scale = (0.4, 0.42), position = Vec2(0.6, 0.25), parent = camera.ui)
+        self.leaderboard_title = Text("Leaderboard", color = color.gold, scale = 5, line_height = 2, origin = 0, y = 0.4, parent = self.leaderboard_background)
+        
+        self.leaderboard_01 = Text(text = "", color = color.hex("#CCCCCC"), scale = 3, line_height = 2, x = 0, origin = 0, y = 0.2, parent = self.leaderboard_background)
+        self.leaderboard_02 = Text(text = "", color = color.hex("#CCCCCC"), scale = 3, line_height = 2, x = 0, origin = 0, y = 0.1, parent = self.leaderboard_background)
+        self.leaderboard_03 = Text(text = "", color = color.hex("#CCCCCC"), scale = 3, line_height = 2, x = 0, origin = 0, y = 0, parent = self.leaderboard_background)
+        self.leaderboard_04 = Text(text = "", color = color.hex("#CCCCCC"), scale = 3, line_height = 2, x = 0, origin = 0, y = -0.1, parent = self.leaderboard_background)
+        self.leaderboard_05 = Text(text = "", color = color.hex("#CCCCCC"), scale = 3, line_height = 2, x = 0, origin = 0, y = -0.2, parent = self.leaderboard_background)
+        
+        self.leaderboard_texts = [self.leaderboard_background, self.leaderboard_title, self.leaderboard_01, self.leaderboard_02, self.leaderboard_03, self.leaderboard_04, self.leaderboard_05]
+
+        self.leaderboard_background.disable()
+        self.leaderboard_title.disable()
+
+        sand_track_button.on_mouse_enter = Func(sand_track_hover)
+        grass_track_button.on_mouse_enter = Func(grass_track_hover)
+        snow_track_button.on_mouse_enter = Func(snow_track_hover)
+        forest_track_button.on_mouse_enter = Func(forest_track_hover)
+        savannah_track_button.on_mouse_enter = Func(savannah_track_hover)
+        lake_track_button.on_mouse_enter = Func(lake_track_hover)
+
+        start_button.on_click = Func(start)
+        sand_track_button.on_click = Func(sand_track_func)
+        grass_track_button.on_click = Func(grass_track_func)
+        snow_track_button.on_click = Func(snow_track_func)
+        forest_track_button.on_click = Func(forest_track_func)
+        savannah_track_button.on_click = Func(savannah_track_func)
+        lake_track_button.on_click = Func(lake_track_func)
+        back_button.on_click = Func(back)
+
+        # Race Menu
+
+        def race_button_func():
+            self.race_menu.disable()
+            self.maps_menu.enable()
+            self.car.gamemode = "race"
+            self.car.count = 0.0
+            self.car.reset_count = 0.0
+
+        def time_trial_func():
+            self.race_menu.disable()
+            self.maps_menu.enable()
+            self.car.gamemode = "time trial"
+            self.car.count = 100.0
+            self.car.reset_count = 100.0
+
+        def drift_func():
+            self.race_menu.disable()
+            self.maps_menu.enable()
+            self.car.gamemode = "drift"
+            self.car.count = 0.0
+            self.car.reset_count = 0.0
+            
+
+        def back_race():
+            self.race_menu.disable()
+            self.main_menu.enable()
+
+        race_button = Button(text = "Race", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.12, parent = self.race_menu)
+        time_trial_button = Button(text = "Time Trial", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0, parent = self.race_menu)
+        drift_button = Button(text = "Drift", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.12, parent = self.race_menu)
+        back_button_race = Button(text = "<- Back", color = color.gray, scale_y = 0.05, scale_x = 0.2, y = 0.45, x = -0.65, parent = self.race_menu)
+
+        race_button.on_click = Func(race_button_func)
+        time_trial_button.on_click = Func(time_trial_func)
+        drift_button.on_click = Func(drift_func)
+        back_button_race.on_click = Func(back_race)
+
+        # Settings
+
+        def settings():
+            self.main_menu.disable()
+            self.settings_menu.enable()
+
+        def video():
+            self.settings_menu.disable()
+            self.video_menu.enable()
+
+        def gameplay():
+            self.settings_menu.disable()
+            self.gameplay_menu.enable()
+
+        def audio():
+            self.settings_menu.disable()
+            self.audio_menu.enable()
+
+        def controls():
+            self.settings_menu.disable()
+            self.controls_menu.enable()
+
+        def back_settings():
+            self.settings_menu.disable()
+            self.main_menu.enable()
+
+        settings_button = Button(text = "Settings", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.22, parent = self.main_menu)
+        
+        video_button = Button(text = "Video", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.24, parent = self.settings_menu)
+        gameplay_button = Button(text = "Gameplay", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.12, parent = self.settings_menu)
+        audio_button = Button(text = "Audio", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0, parent = self.settings_menu)
+        controls_button = Button(text = "Controls", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.12, parent = self.settings_menu)
+
+        back_button_settings = Button(text = "Back", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.24, parent = self.settings_menu)
+
+        settings_button.on_click = Func(settings) 
+        video_button.on_click = Func(video)
+        gameplay_button.on_click = Func(gameplay)
+        audio_button.on_click = Func(audio)
+        controls_button.on_click = Func(controls)
+        back_button_settings.on_click = Func(back_settings)
+
+        # Gameplay Menu
+
+        def graphics():
+            if self.car.graphics == "fancy":
+                self.car.graphics = "fast"
+                self.car.particle_amount = 0.085
+                graphics_button.text = "Graphics: Fast"
+                for track in self.tracks:
+                    if track.enabled:
+                        for detail in track.details:
+                            detail.enable()
+                        grass_track.grass.disable()
+                self.sun.resolution = 2048
+            elif self.car.graphics == "fast":
+                self.car.graphics = "ultra fast"
+                self.car.particle_amount = 0.1
+                graphics_button.text = "Graphics: Ultra Fast"
+                for track in self.tracks:
+                    if track.enabled:
+                        for detail in track.details:
+                            detail.disable()
+                self.sun.resolution = 1024
+            elif self.car.graphics == "ultra fast":
+                self.car.graphics = "fancy"
+                self.car.particle_amount = 0.07
+                graphics_button.text = "Graphics: Fancy"
+                for track in self.tracks:
+                    if track.enabled:
+                        for detail in track.details:
+                            detail.enable()
+                self.sun.resolution = 3072
+            self.sun.update_resolution()
+
+        def camera_angle():
+            if self.car.camera_angle == "top":
+                self.car.camera_angle = "side"
+                camera_angle_button.text = "Camera Angle: Side"
+            elif self.car.camera_angle == "side":
+                self.car.camera_angle = "behind"
+                camera_angle_button.text = "Camera Angle: Behind"
+            elif self.car.camera_angle == "behind":
+                self.car.camera_angle = "first-person"
+                camera_angle_button.text = "Camera Angle: First-Person"
+            elif self.car.camera_angle == "first-person":
+                self.car.camera_angle = "top"
+                camera_angle_button.text = "Camera Angle: Top"
+            self.car.change_camera = True
+
+        def camera_shake():
+            self.car.camera_shake_option = not self.car.camera_shake_option
+            if self.car.camera_shake_option:
+                camera_shake_button.text = "Camera Shake: On"
+            elif self.car.camera_shake_option == False:
+                camera_shake_button.text = "Camera Shake: Off"
+
+        def back_gameplay():
+            self.gameplay_menu.disable()
+            self.settings_menu.enable()
+
+        graphics_button = Button("Graphics: Fancy", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.24, parent = self.gameplay_menu)
+        camera_angle_button = Button("Camera Angle: Top", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.12, parent = self.gameplay_menu)
+        camera_shake_button = Button("Camera Shake: On", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0, parent = self.gameplay_menu)
+        reset_highsore_button = Button(text = "Reset Highscore", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.12, parent = self.gameplay_menu)
+        back_button_gameplay = Button(text = "Back", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.24, parent = self.gameplay_menu)
+
+        graphics_button.on_click = Func(graphics)
+        camera_angle_button.on_click = Func(camera_angle)
+        camera_shake_button.on_click = Func(camera_shake)
+        reset_highsore_button.on_click = Func(self.car.reset_highscore)
+        back_button_gameplay.on_click = Func(back_gameplay)
+
+        # Video Menu
+
+        def fullscreen():
+            window.fullscreen = not window.fullscreen
+            if window.fullscreen:
+                fullscreen_button.text = "Fullscreen: On"
+            elif window.fullscreen == False:
+                fullscreen_button.text = "Fullscreen: Off"
+
+        def borderless():
+            window.borderless = not window.borderless
+            if window.borderless:
+                borderless_button.text = "Borderless: On"
+            elif window.borderless == False:
+                borderless_button.text = "Borderless: Off"
+            window.exit_button.enable()
+
+        def fps():
+            window.fps_counter.enabled = not window.fps_counter.enabled
+            if window.fps_counter.enabled:
+                fps_button.text = "FPS: On"
+            elif window.fps_counter.enabled == False:
+                fps_button.text = "FPS: Off"
+
+        def exit_button_func():
+            window.exit_button.enabled = not window.exit_button.enabled
+            if window.exit_button.enabled:
+                exit_button.text = "Exit Button: On"
+            elif window.exit_button.enabled == False:
+                exit_button.text = "Exit Button: Off"
+
+        def back_video():
+            self.video_menu.disable()
+            self.settings_menu.enable()
+
+        fullscreen_button = Button("Fullscreen: On", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.24, parent = self.video_menu)
+        borderless_button = Button("Borderless: On", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.12, parent = self.video_menu)
+        fps_button = Button("FPS: Off", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0, parent = self.video_menu)
+        exit_button = Button("Exit Button: Off", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.12, parent = self.video_menu)
+        back_button_video = Button(text = "Back", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.24, parent = self.video_menu)
+
+        fullscreen_button.on_click = Func(fullscreen)
+        borderless_button.on_click = Func(borderless)
+        fps_button.on_click = Func(fps)
+        exit_button.on_click = Func(exit_button_func)
+        back_button_video.on_click = Func(back_video)
+
+        # Audio Menu
+
+        def audio_func():
+            if self.car.audio:
+                audio_button.text = "Audio: Off"
+                self.volume.value = 0
+            elif not self.car.audio:
+                audio_button.text = "Audio: On"
+                self.volume.value = 1
+            self.car.audio = not self.car.audio
+        
+        def back_audio():
+            self.audio_menu.disable()
+            self.settings_menu.enable()
+
+        audio_button = Button("Audio: On", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0, parent = self.audio_menu)
+        back_button_audio = Button(text = "Back", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.12, parent = self.audio_menu)
+        
+        self.volume = Slider(min = 0, max = 1, default = 1, text = "Volume", y = 0.2, x = -0.3, scale = 1.3, parent = self.audio_menu, dynamic = True)
+        self.volume.step = 0.1
+
+        audio_button.on_click = Func(audio_func)
+        back_button_audio.on_click = Func(back_audio)
+
+        # Controls
+
+        def back_controls():
+            self.controls_menu.disable()
+            self.settings_menu.enable()
+
+        def controls_settings():
+            if self.car.controls == "wasd":
+                self.car.controls = "zqsd"
+                controls_settings_button.text = "Controls: ZQSD"
+                drive_controls_text.text = "Drive: Z"
+                steering_controls_text.text = "Steering: Q D"
+            elif self.car.controls == "zqsd":
+                self.car.controls = "wasd"
+                controls_settings_button.text = "Controls: WASD"
+                drive_controls_text.text = "Drive: W"
+                steering_controls_text.text = "Steering: A D"
+        
+        drive_controls_text = Button("Drive: W", color = color.black, scale_y = 0.1, scale_x = 0.3, x = -0.5, y = 0.3, parent = self.controls_menu)
+        steering_controls_text = Button("Steering: A D", color = color.black, scale_y = 0.1, scale_x = 0.3, x = 0, y = 0.3, parent = self.controls_menu)
+        braking_controls_text = Button("Braking: S", color = color.black, scale_y = 0.1, scale_x = 0.3, x = 0.5, y = 0.3, parent = self.controls_menu)
+        handbraking_controls_text = Button("Hand Brake: SPACE", color = color.black, scale_y = 0.1, scale_x = 0.3, x = -0.5, y = 0.1, parent = self.controls_menu)
+        respawn_controls_text = Button("Respawn: G", color = color.black, scale_y = 0.1, scale_x = 0.3, x = 0, y = 0.1, parent = self.controls_menu)
+        controls_settings_button = Button("Controls: WASD", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.2, parent = self.controls_menu)
+        back_button_controls = Button(text = "Back", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.32, parent = self.controls_menu)
+
+        back_button_controls.on_click = Func(back_controls)
+        controls_settings_button.on_click = Func(controls_settings)
+
+        # Pause Menu
+
+        def resume():
+            mouse.locked = True
+            self.pause_menu.disable()
+
+        def respawn():
+            if sand_track.enabled:
+                self.car.position = (-63, -40, -7)
+                self.car.rotation = (0, 90, 0)
+                
+            elif grass_track.enabled:
+                self.car.position = (-80, -30, 18.5)
+                self.car.rotation = (0, 90, 0)
+                
+            elif snow_track.enabled:
+                self.car.position = (-5, -35, 93)
+                self.car.rotation = (0, 90, 0)
+                
+            elif forest_track.enabled:
+                self.car.position = (12, -35, 76)
+                self.car.rotation = (0, 90, 0)
+                
+            elif savannah_track.enabled:
+                self.car.position = (-14, -35, 42)
+                self.car.rotation = (0, 90, 0)
+                
+            elif self.lake_track.enabled:
+                self.car.position = (-121, -40, 158)
+                self.car.rotation = (0, 90, 0)
