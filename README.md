@@ -1,4 +1,4 @@
-# SF rally Drifting Racing Game
+# SF rally Drifting Game
 
 Welcome to the Drift Racing Game, an exciting and immersive racing experience built with Ursina.
 
