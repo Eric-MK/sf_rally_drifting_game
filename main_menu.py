@@ -289,6 +289,7 @@ class MainMenu(Entity):
             if self.car.gamemode == "race":
                 highscore_text.enable()
                 highscore_text.text = "Highscore: " + str(round(self.car.sand_track_hs, 2)) 
+                highscore_text.text = "Highscore: " + str(round(self.car.sand_track_hs, 2)) + "\n Kevin: 15.55" + "\n Moses: 17.10" + "\n David: 18.30"+ "\n Adrian: 20.10" + "\n Eric: 21.30"
 
         def grass_track_hover():
             for track in self.tracks:
@@ -312,6 +313,7 @@ class MainMenu(Entity):
             if self.car.gamemode == "race":
                     highscore_text.enable()
                     highscore_text.text = "Highscore: " + str(round(self.car.grass_track_hs, 2)) 
+                    highscore_text.text = "Highscore: " + str(round(self.car.grass_track_hs, 2)) + "\n Kevin: 15.55" + "\n Moses: 17.10" + "\n David: 18.30"+ "\n Adrian: 20.10" + "\n Eric: 21.30"
             unlocked_text.disable()
             grass_track.alpha = 255
 
