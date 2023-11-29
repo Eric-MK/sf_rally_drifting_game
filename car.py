@@ -808,3 +808,471 @@ class Car(Entity):
                 self.skid_sound.stop(False)
             if self.dirt_sound.playing:
                 self.dirt_sound.stop(False)
+
+    def simple_intersects(self, entity):
+        """
+        A faster AABB intersects for detecting collision with
+        simple objects, doesn't take rotation into account
+        """
+        minXA = self.x - self.scale_x
+        maxXA = self.x + self.scale_x
+        minYA = self.y - self.scale_y + (self.scale_y / 2)
+        maxYA = self.y + self.scale_y - (self.scale_y / 2)
+        minZA = self.z - self.scale_z
+        maxZA = self.z + self.scale_z
+
+        minXB = entity.x - entity.scale_x + (entity.scale_x / 2)
+        maxXB = entity.x + entity.scale_x - (entity.scale_x / 2)
+        minYB = entity.y - entity.scale_y + (entity.scale_y / 2)
+        maxYB = entity.y + entity.scale_y - (entity.scale_y / 2)
+        minZB = entity.z - entity.scale_z + (entity.scale_z / 2)
+        maxZB = entity.z + entity.scale_z - (entity.scale_z / 2)
+        
+        return (
+            (minXA <= maxXB and maxXA >= minXB) and
+            (minYA <= maxYB and maxYA >= minYB) and
+            (minZA <= maxZB and maxZA >= minZB)
+        )
+
+    def check_highscore(self):
+        """
+        Checks if the score is lower than the highscore
+        """
+        if self.gamemode == "race":
+            self.last_count = self.count
+            self.reset_count = 0.0
+            self.timer.disable()
+            self.reset_count_timer.enable()
+
+            if self.highscore_count == 0:
+                if self.last_count >= 5:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+            if self.last_count <= self.highscore_count and self.last_count != 0:
+                if self.last_count >= 5:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+                if self.highscore_count <= 6:
+                    self.highscore_count = self.last_count
+                    self.animate_text(self.highscore)
+
+            if self.sand_track.enabled:
+                self.sand_track_hs = float(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_hs = float(self.highscore_count)
+            elif self.snow_track.enabled:
+                self.snow_track_hs = float(self.highscore_count)
+            elif self.forest_track.enabled:
+                self.forest_track_hs = float(self.highscore_count)
+            elif self.savannah_track.enabled:
+                self.savannah_track_hs = float(self.highscore_count)
+            elif self.lake_track.enabled:
+                self.lake_track_hs = float(self.highscore_count)
+            self.save_highscore()
+
+        elif self.gamemode == "time trial":
+            self.last_count = self.count
+            if self.start_time:
+                self.laps += 1
+                self.animate_text(self.laps_text, 1.7, 1.1)
+            self.start_time = True
+
+        elif self.gamemode == "drift":
+            self.drift_score += self.count
+
+            if self.drift_score >= self.highscore_count:
+                self.highscore_count = self.drift_score
+                if self.highscore_count != 0:
+                    self.animate_text(self.highscore)
+
+            self.reset_count = self.drift_score
+            self.reset_count_timer.enable()
+            self.timer.disable()
+            invoke(self.reset_count_timer.disable, delay = 3)
+            invoke(self.timer.enable, delay = 3)
+
+            self.reset_drift_score()
+            
+            self.highscore.text = str(int(self.highscore_count))
+            
+            if self.sand_track.enabled:
+                self.sand_track_drift = int(self.highscore_count)
+            elif self.grass_track.enabled:
+                self.grass_track_drift = int(self.highscore_count)
+            elif self.snow_track.enabled:
+                self.snow_track_drift = int(self.highscore_count)
+            elif self.forest_track.enabled:
+                self.forest_track_drift = int(self.highscore_count)
+            elif self.savannah_track.enabled:
+                self.savannah_track_drift = int(self.highscore_count)
+            elif self.lake_track.enabled:
+                self.lake_track_drift = int(self.highscore_count)
+
+            self.save_highscore()
+
+    def save_highscore(self):
+        """
+        Saves the highscore to a json file
+        """
+        self.highscore_dict = {
+            "race": {
+                "sand_track": self.sand_track_hs,
+                "grass_track": self.grass_track_hs,
+                "snow_track": self.snow_track_hs,
+                "forest_track": self.forest_track_hs,
+                "savannah_track": self.savannah_track_hs,
+                "lake_track": self.lake_track_hs
+            },
+            
+            "time_trial": {
+                "sand_track": self.sand_track_laps,
+                "grass_track": self.grass_track_laps, 
+                "snow_track": self.snow_track_laps, 
+                "forest_track": self.forest_track_laps,
+                "savannah_track": self.savannah_track_laps,
+                "lake_track": self.lake_track_laps
+            },
+
+            "drift": {
+                "sand_track": self.sand_track_drift,
+                "grass_track": self.grass_track_drift, 
+                "snow_track": self.snow_track_drift, 
+                "forest_track": self.forest_track_drift,
+                "savannah_track": self.savannah_track_drift,
+                "lake_track": self.lake_track_drift
+            }
+        }
+
+        with open(self.highscore_path, "w") as hs:
+            json.dump(self.highscore_dict, hs, indent = 4)
+
+    def reset_highscore(self):
+        """
+        Resets all of the highscores
+        """
+        self.sand_track_hs = 0.0
+        self.grass_track_hs = 0.0
+        self.snow_track_hs = 0.0
+        self.forest_track_hs = 0.0
+        self.savannah_track_hs = 0.0
+        self.lake_track_hs = 0.0
+
+        self.sand_track_laps = 0
+        self.grass_track_laps = 0
+        self.snow_track_laps = 0
+        self.forest_track_laps = 0
+        self.savannah_track_laps = 0
+        self.lake_track_laps = 0
+
+        self.sand_track_drift = 0.0
+        self.grass_track_drift = 0.0
+        self.snow_track_drift = 0.0
+        self.forest_track_drift = 0.0
+        self.savannah_track_drift = 0.0
+        self.lake_track_drift = 0.0
+
+        self.save_highscore()
+
+    def set_unlocked(self):
+        """
+        Declares variables with data from a json file
+        """
+        self.sand_track.unlocked = self.unlocked["tracks"]["sand_track"]
+        self.grass_track.unlocked = self.unlocked["tracks"]["grass_track"]
+        self.snow_track.unlocked = self.unlocked["tracks"]["snow_track"]
+        self.forest_track.unlocked = self.unlocked["tracks"]["forest_track"]
+        self.savannah_track.unlocked = self.unlocked["tracks"]["savannah_track"]
+        self.lake_track.unlocked = self.unlocked["tracks"]["lake_track"]
+
+        self.beat_mandaw_sand_track = self.unlocked["beat_mandaw"]["sand_track"]
+        self.beat_mandaw_grass_track = self.unlocked["beat_mandaw"]["grass_track"]
+        self.beat_mandaw_snow_track = self.unlocked["beat_mandaw"]["snow_track"]
+        self.beat_mandaw_forest_track = self.unlocked["beat_mandaw"]["forest_track"]
+        self.beat_mandaw_savannah_track = self.unlocked["beat_mandaw"]["savannah_track"]
+        self.beat_mandaw_lake_track = self.unlocked["beat_mandaw"]["lake_track"]
+
+        self.sports_unlocked = self.unlocked["cars"]["sports_car"]
+        self.muscle_unlocked = self.unlocked["cars"]["muscle_car"]
+        self.limo_unlocked = self.unlocked["cars"]["limo"]
+        self.lorry_unlocked = self.unlocked["cars"]["lorry"]
+        self.hatchback_unlocked = self.unlocked["cars"]["hatchback"]
+        self.rally_unlocked = self.unlocked["cars"]["rally_car"]
+
+        self.sports_red_unlocked = self.unlocked["textures"]["sports_car"]["red"]
+        self.sports_blue_unlocked = self.unlocked["textures"]["sports_car"]["blue"]
+        self.sports_green_unlocked = self.unlocked["textures"]["sports_car"]["green"]
+        self.sports_orange_unlocked = self.unlocked["textures"]["sports_car"]["orange"]
+        self.sports_black_unlocked = self.unlocked["textures"]["sports_car"]["black"]
+        self.sports_white_unlocked = self.unlocked["textures"]["sports_car"]["white"]
+
+        self.muscle_red_unlocked = self.unlocked["textures"]["muscle_car"]["red"]
+        self.muscle_blue_unlocked = self.unlocked["textures"]["muscle_car"]["blue"]
+        self.muscle_green_unlocked = self.unlocked["textures"]["muscle_car"]["green"]
+        self.muscle_orange_unlocked = self.unlocked["textures"]["muscle_car"]["orange"]
+        self.muscle_black_unlocked = self.unlocked["textures"]["muscle_car"]["black"]
+        self.muscle_white_unlocked = self.unlocked["textures"]["muscle_car"]["white"]
+
+        self.limo_red_unlocked = self.unlocked["textures"]["limo"]["red"]
+        self.limo_blue_unlocked = self.unlocked["textures"]["limo"]["blue"]
+        self.limo_green_unlocked = self.unlocked["textures"]["limo"]["green"]
+        self.limo_orange_unlocked = self.unlocked["textures"]["limo"]["orange"]
+        self.limo_black_unlocked = self.unlocked["textures"]["limo"]["black"]
+        self.limo_white_unlocked = self.unlocked["textures"]["limo"]["white"]
+
+        self.lorry_red_unlocked = self.unlocked["textures"]["lorry"]["red"]
+        self.lorry_blue_unlocked = self.unlocked["textures"]["lorry"]["blue"]
+        self.lorry_green_unlocked = self.unlocked["textures"]["lorry"]["green"]
+        self.lorry_orange_unlocked = self.unlocked["textures"]["lorry"]["orange"]
+        self.lorry_black_unlocked = self.unlocked["textures"]["lorry"]["black"]
+        self.lorry_white_unlocked = self.unlocked["textures"]["lorry"]["white"]
+
+        self.hatchback_red_unlocked = self.unlocked["textures"]["hatchback"]["red"]
+        self.hatchback_blue_unlocked = self.unlocked["textures"]["hatchback"]["blue"]
+        self.hatchback_green_unlocked = self.unlocked["textures"]["hatchback"]["green"]
+        self.hatchback_orange_unlocked = self.unlocked["textures"]["hatchback"]["orange"]
+        self.hatchback_black_unlocked = self.unlocked["textures"]["hatchback"]["black"]
+        self.hatchback_white_unlocked = self.unlocked["textures"]["hatchback"]["white"]
+
+        self.rally_red_unlocked = self.unlocked["textures"]["rally_car"]["red"]
+        self.rally_blue_unlocked = self.unlocked["textures"]["rally_car"]["blue"]
+        self.rally_green_unlocked = self.unlocked["textures"]["rally_car"]["green"]
+        self.rally_orange_unlocked = self.unlocked["textures"]["rally_car"]["orange"]
+        self.rally_black_unlocked = self.unlocked["textures"]["rally_car"]["black"]
+        self.rally_white_unlocked = self.unlocked["textures"]["rally_car"]["white"]
+
+        self.viking_helmet_unlocked = self.unlocked["cosmetics"]["viking_helmet"]
+        self.duck_unlocked = self.unlocked["cosmetics"]["duck"]
+        self.banana_unlocked = self.unlocked["cosmetics"]["banana"]
+        self.surfinbird_unlocked = self.unlocked["cosmetics"]["surfinbird"]
+
+        self.drift_unlocked = self.unlocked["gamemodes"]["drift"]
+
+    def save_unlocked(self):
+        """
+        Saves the unlocks to a json file
+        """
+        self.unlocked_dict = {
+            "tracks": {
+                "sand_track": self.sand_track.unlocked,
+                "grass_track": self.grass_track.unlocked,
+                "snow_track": self.snow_track.unlocked,
+                "forest_track": self.forest_track.unlocked,
+                "savannah_track": self.savannah_track.unlocked,
+                "lake_track": self.lake_track.unlocked
+            },
+            "beat_mandaw": {
+                "sand_track": self.beat_mandaw_sand_track,
+                "grass_track": self.beat_mandaw_grass_track,
+                "snow_track": self.beat_mandaw_snow_track,
+                "forest_track": self.beat_mandaw_forest_track,
+                "savannah_track": self.beat_mandaw_savannah_track,
+                "lake_track": self.beat_mandaw_lake_track
+            },
+            "cars": {
+                "sports_car": self.sports_unlocked,
+                "muscle_car": self.muscle_unlocked,
+                "limo": self.limo_unlocked,
+                "lorry": self.lorry_unlocked,
+                "hatchback": self.hatchback_unlocked,
+                "rally_car": self.rally_unlocked
+            },
+            "textures": {
+                "sports_car": {
+                    "red": self.sports_red_unlocked,
+                    "blue": self.sports_blue_unlocked,
+                    "green": self.sports_green_unlocked,
+                    "orange": self.sports_orange_unlocked,
+                    "black": self.sports_black_unlocked,
+                    "white": self.sports_white_unlocked
+                },
+                "muscle_car": {
+                    "red": self.muscle_red_unlocked,
+                    "blue": self.muscle_blue_unlocked,
+                    "green": self.muscle_green_unlocked,
+                    "orange": self.muscle_orange_unlocked,
+                    "black": self.muscle_black_unlocked,
+                    "white": self.muscle_white_unlocked
+                },
+                "limo": {
+                    "red": self.limo_red_unlocked,
+                    "blue": self.limo_blue_unlocked,
+                    "green": self.limo_green_unlocked,
+                    "orange": self.limo_orange_unlocked,
+                    "black": self.limo_black_unlocked,
+                    "white": self.limo_white_unlocked
+                },
+                "lorry": {
+                    "red": self.lorry_red_unlocked,
+                    "blue": self.lorry_blue_unlocked,
+                    "green": self.lorry_green_unlocked,
+                    "orange": self.lorry_orange_unlocked,
+                    "black": self.lorry_black_unlocked,
+                    "white": self.lorry_white_unlocked
+                },
+                "hatchback": {
+                    "red": self.hatchback_red_unlocked,
+                    "blue": self.hatchback_blue_unlocked,
+                    "green": self.hatchback_green_unlocked,
+                    "orange": self.hatchback_orange_unlocked,
+                    "black": self.hatchback_black_unlocked,
+                    "white": self.hatchback_white_unlocked
+                },
+                "rally_car": {
+                    "red": self.rally_red_unlocked,
+                    "blue": self.rally_blue_unlocked,
+                    "green": self.rally_green_unlocked,
+                    "orange": self.rally_orange_unlocked,
+                    "black": self.rally_black_unlocked,
+                    "white": self.rally_white_unlocked
+                }
+            },
+            "cosmetics": {
+                "viking_helmet": self.viking_helmet_unlocked,
+                "duck": self.duck_unlocked,
+                "banana": self.banana_unlocked,
+                "surfinbird": self.surfinbird_unlocked
+            },
+            "gamemodes": {
+                "drift": self.drift_unlocked
+            }
+        }
+
+        with open(self.unlocked_json, "w") as hs:
+            json.dump(self.unlocked_dict, hs, indent = 4)
+    
+    def reset_timer(self):
+        """
+        Resets the timer
+        """
+        self.count = self.reset_count
+        self.timer.enable()
+        self.reset_count_timer.disable()
+
+    def reset_drift(self):
+        """
+        Resets the drift
+        """
+        self.animate_text(self.drift_text, 1.7, 1.1)
+        invoke(self.drift_text.animate_position, (-0.8, 0.43), 0.3, curve = curve.out_expo, delay = 0.3)
+        invoke(self.reset_drift_text, delay = 0.4)
+        self.drift_swush.play()
+        self.get_hundred = False
+        self.get_thousand = False
+        self.get_fivethousand = False
+
+    def reset_drift_text(self):
+        """
+        Resets the drift text
+        """
+        self.drift_score += self.count
+        self.drift_multiplier = 20
+        self.count = 0
+        self.drifting = False
+        invoke(setattr, self.drift_text, "visible", False, delay = 0.1)
+        invoke(setattr, self.drift_text, "position", (0, 0.43), delay = 0.3)
+
+    def reset_drift_score(self):
+        self.count = 0
+        self.drift_score = 0
+        self.drift_multiplier = 20
+        self.drifting = False
+
+        if self.sand_track.enabled:
+            self.drift_time = 25.0
+        elif self.grass_track.enabled:
+            self.drift_time = 30.0
+        elif self.snow_track.enabled:
+            self.drift_time = 50.0
+        elif self.forest_track.enabled:
+            self.drift_time = 40.0
+        elif self.savannah_track.enabled:
+            self.drift_time = 25.0
+        elif self.lake_track.enabled:
+            self.drift_time = 75.0
+
+    def animate_text(self, text, top = 1.2, bottom = 0.6):
+        """
+        Animates the scale of text
+        """
+        if self.gamemode != "drift":
+            if self.last_count > 1:
+                text.animate_scale((top, top, top), curve = curve.out_expo)
+                invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+        else:
+            text.animate_scale((top, top, top), curve = curve.out_expo)
+            invoke(text.animate_scale, (bottom, bottom, bottom), delay = 0.2)
+
+    def shake_camera(self):
+        """
+        Camera shake
+        """
+        camera.x += random.randint(-1, 1) * self.shake_amount
+        camera.y += random.randint(-1, 1) * self.shake_amount
+        camera.z += random.randint(-1, 1) * self.shake_amount
+
+    def update_model_path(self):
+        """
+        Updates the model's file path for multiplayer
+        """
+        self.model_path = str(self.model).replace("render/scene/car/", "")
+        invoke(self.update_model_path, delay = 3)
+
+# Class for copying the car's position, rotation for multiplayer
+class CarRepresentation(Entity):
+    def __init__(self, car, position = (0, 0, 0), rotation = (0, 65, 0)):
+        super().__init__(
+            parent = scene,
+            model = "sports-car.obj",
+            texture = "sports-red.png",
+            position = position,
+            rotation = rotation,
+            scale = (1, 1, 1)
+        )
+
+        self.model_path = str(self.model).replace("render/scene/car_representation/", "")
+        
+        self.viking_helmet = Entity(model = "viking_helmet.obj", texture = "viking_helmet.png", parent = self)
+        self.duck = Entity(model = "duck.obj", parent = self)
+        self.banana = Entity(model = "banana.obj", parent = self)
+        self.surfinbird = Entity(model = "surfinbird.obj", texture = "surfinbird.png", parent = self)
+        self.surfboard = Entity(model = "surfboard.obj", texture = "surfboard.png", parent = self.surfinbird)
+        self.viking_helmet.disable()
+        self.duck.disable()
+        self.banana.disable()
+        self.surfinbird.disable()
+
+        self.cosmetics = [self.viking_helmet, self.duck, self.banana, self.surfinbird]
+
+        self.text_object = None
+        self.highscore = 0.0
+
+        invoke(self.update_representation, delay = 5)
+
+    def update_representation(self):
+        for cosmetic in self.cosmetics:
+            if cosmetic.enabled:
+                if self.model_path == "lorry.obj":
+                    cosmetic.y = 1.5
+                elif self.model_path == "limo.obj":
+                    cosmetic.y = 0.1
+                elif self.model_path == "sports-car.obj" or self.model_path == "muscle-car.obj":
+                    cosmetic.y = 0
+
+        invoke(self.update_representation, delay = 5)
+
+# Username shown above the car
+class CarUsername(Text):
+    def __init__(self, car):
+        super().__init__(
+            parent = car,
+            text = "Guest",
+            y = 3,
+            scale = 30,
+            color = color.white,
+            billboard = True
+        )
+    
+        self.username_text = "Guest"
+
+    def update(self):
+        self.text = self.username_text
