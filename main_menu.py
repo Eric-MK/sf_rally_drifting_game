@@ -997,3 +997,573 @@ class MainMenu(Entity):
             elif self.lake_track.enabled:
                 self.car.position = (-121, -40, 158)
                 self.car.rotation = (0, 90, 0)
+                
+            camera.world_rotation_y = self.car.rotation_y
+            self.car.speed = 0
+            self.car.anti_cheat = 1
+            self.car.velocity_y = 0
+            if self.car.gamemode == "race":
+                self.car.count = 0.0
+                self.car.reset_count = 0.0
+                self.car.timer_running = False
+            elif self.car.gamemode == "time trial":
+                self.count = 100.0
+                self.reset_count = 100.0
+                self.laps = 0
+                self.timer_running = False
+                self.start_time = False
+            elif self.car.gamemode == "drift":
+                self.car.timer_running = False
+                self.car.reset_drift_score()
+            for trail in self.car.trails:
+                if trail.trailing:
+                    trail.end_trail(True)
+            self.car.start_trail = True
+            self.car.start_sound = True
+            if self.car.audio:
+                if self.car.skid_sound.playing:
+                    self.car.skid_sound.stop(False)
+                if self.car.dirt_sound.playing:
+                    self.car.dirt_sound.stop(False)
+
+        def main_menu():
+            self.car.position = (0, 0, 4)
+            self.car.visible = False
+            self.car.rotation = (0, 65, 0)
+            self.car.speed = 0
+            self.car.velocity_y = 0
+            self.car.count = 0.0
+            self.car.last_count = 0.0
+            self.car.reset_count = 0.0
+            self.car.laps = 0
+            self.car.drift_score = 0
+            self.car.reset_drift_score()
+            self.car.gamemode = "race"
+            self.car.start_time = False
+            self.car.reset_count_timer.disable()
+            self.car.timer_running = False
+            self.car.anti_cheat = 1
+            self.main_menu.enable()
+            self.pause_menu.disable()
+            for track in self.tracks:
+                track.disable()
+                track.alpha = 255
+                for i in track.track:
+                    if track != self.grass_track:
+                        i.disable()
+                    else:
+                        i.enable()
+                if self.car.graphics != "ultra fast":
+                    for i in track.details:
+                        if track != grass_track:
+                            i.disable()
+                        else:
+                            i.enable()
+                if self.car.graphics == "fast":
+                    grass_track.grass.disable()
+            grass_track.enable()
+            
+            for trail in self.car.trails:
+                if trail.trailing:
+                    trail.end_trail(True)
+            self.car.start_trail = True
+            self.car.start_sound = True
+            if self.car.audio:
+                if self.car.skid_sound.playing:
+                    self.car.skid_sound.stop(False)
+                if self.car.dirt_sound.playing:
+                    self.car.dirt_sound.stop(False)
+                
+        p_resume_button = Button(text = "Resume", color = color.black, scale_y = 0.1, scale_x = 0.3, y = 0.11, parent = self.pause_menu)
+        p_respawn_button = Button(text = "Respawn", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.01, parent = self.pause_menu)
+        p_mainmenu_button = Button(text = "Main Menu", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.13, parent = self.pause_menu)
+        p_mainmenu_button.on_click = Func(main_menu)
+        p_respawn_button.on_click = Func(respawn)
+        p_resume_button.on_click = Func(resume)
+
+        # Garage
+
+        def back_garage():
+            self.garage_menu.disable()
+            self.main_menu.enable()
+            self.car.position = (0, 0, 4)
+            self.car.camera_offset = (20, 40, -50)
+            camera.rotation = (35, -20, 0)
+            self.car.visible = False
+            grass_track.enable()
+            sand_track.disable()
+            for track in self.tracks:
+                for i in track.track:
+                    i.disable()
+                for i in track.details:
+                    i.disable()
+            for track in self.grass_track.track:
+                track.enable()
+            if self.car.graphics != "ultra fast":
+                for detail in grass_track.details:
+                    detail.enable()
+            if self.car.graphics == "fast":
+                grass_track.grass.disable()
+
+            self.car.highscore_count = float(self.car.grass_track_hs)
+
+        def garage_button_func():
+            self.garage_menu.enable()
+            self.main_menu.disable()
+            self.cars_menu.enable()
+            self.cosmetics_menu.disable()
+            self.colours_menu.disable()
+            self.car.visible = True
+            self.car.position = (-105, -50, -59)
+            grass_track.disable()
+            sand_track.enable()
+            for track in self.tracks:
+                for i in track.track:
+                    i.disable()
+                for i in track.details:
+                    i.disable()
+            for track in self.sand_track.track:
+                track.enable()
+            if self.car.graphics != "ultra fast":
+                for detail in sand_track.details:
+                    detail.enable()
+
+        def cars_menu():
+            self.cars_menu.enable()
+            self.colours_menu.disable()
+            self.cosmetics_menu.disable()
+
+        def colours_menu():
+            self.cars_menu.disable()
+            self.colours_menu.enable()
+            self.cosmetics_menu.disable()
+
+        def cosmetics_menu():
+            self.cars_menu.disable()
+            self.colours_menu.disable()
+            self.cosmetics_menu.enable()
+
+        def sports_car():
+            self.car.sports_car()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+
+        def muscle_car():
+            self.car.muscle_car()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+
+        def limo():
+            self.car.limo()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+        def lorry():
+            self.car.lorry()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+        def hatchback():
+            self.car.hatchback()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+
+        def rally():
+            self.car.rally_car()
+            self.car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            self.car.viking_helmet.disable()
+            self.car.duck.disable()
+            self.car.banana.disable()
+            self.car.surfinbird.disable()
+
+        def sports_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Sports Car"
+
+        def muscle_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Muscle Car"
+
+        def limo_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Limo"
+        
+        def lorry_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Lorry"
+
+        def hatchback_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Hatchback"
+
+        def rally_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Rally Car"
+
+        def change_colour(colour):
+            """
+            Changes the car color to the selected color after a small animation.
+            """
+            if colour == "red":
+                if self.car.car_type == "muscle":
+                    return
+                elif self.car.car_type == "limo":
+                    return
+                elif self.car.car_type == "lorry":
+                    return
+                elif self.car.car_type == "hatchback":
+                    return
+                car.texture = f"{self.car.car_type}-red.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            if colour == "blue":
+                if self.car.car_type == "muscle":
+                    return
+                elif self.car.car_type == "limo":
+                    return
+                elif self.car.car_type == "lorry":
+                    return
+                elif self.car.car_type == "hatchback":
+                    return
+                elif self.car.car_type == "rally":
+                    return
+                car.texture = f"{self.car.car_type}-blue.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            if colour == "green":
+                if self.car.car_type == "sports":
+                    return
+                elif self.car.car_type == "muscle":
+                     return
+                elif self.car.car_type == "limo":
+                    return
+                elif self.car.car_type == "lorry":
+                    return
+                elif self.car.car_type == "rally":
+                    return
+                car.texture = f"{self.car.car_type}-green.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            if colour == "orange":
+                if self.car.car_type == "sports":
+                    return
+                elif self.car.car_type == "limo":
+                    return
+                elif self.car.car_type == "lorry":
+                    return
+                elif self.car.car_type == "hatchback":
+                    return
+                elif self.car.car_type == "rally":
+                    return
+                car.texture = f"{self.car.car_type}-orange.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            if colour == "black":
+                if self.car.car_type == "sports":
+                    return
+                elif self.car.car_type == "muscle":
+                    return
+                elif self.car.car_type == "lorry":
+                    return
+                elif self.car.car_type == "hatchback":
+                    return
+                elif self.car.car_type == "rally":
+                    return
+                car.texture = f"{self.car.car_type}-black.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+            if colour == "white":
+                if self.car.car_type == "sports":
+                    return
+                elif self.car.car_type == "muscle":
+                    return
+                elif self.car.car_type == "limo":
+                    return
+                elif self.car.car_type == "hatchback":
+                    return
+                elif self.car.car_type == "rally":
+                    return
+                car.texture = f"{self.car.car_type}-white.png"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+
+        def viking_helmet():
+                self.car.current_cosmetic = "viking"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+                car.viking_helmet.enabled = not car.viking_helmet.enabled
+                car.duck.disable()
+                car.banana.disable()
+                car.surfinbird.disable()
+
+        def duck():
+                self.car.current_cosmetic = "duck"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+                car.duck.enabled = not car.duck.enabled
+                car.viking_helmet.disable()
+                car.banana.disable()
+                car.surfinbird.disable()
+
+        def banana():
+                self.car.current_cosmetic = "banana"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+                car.banana.enabled = not car.banana.enabled
+                car.duck.disable()
+                car.viking_helmet.disable()
+                car.surfinbird.disable()
+
+        def surfinbird():
+                self.car.current_cosmetic = "surfinbird"
+                car.animate_rotation_y(car.rotation_y + 360, duration = 0.4, curve = curve.in_out_quad)
+                car.surfinbird.enabled = not car.surfinbird.enabled
+                car.viking_helmet.disable()
+                car.duck.disable()
+                car.banana.disable()
+
+        def viking_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Viking Helmet"
+
+        def duck_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Duck"
+
+        def banana_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Banana"
+        
+        def surfinbird_hover():
+            self.garage_name_text.enable()
+            self.garage_name_text.text = "Surfin Bird"
+
+        self.start_spin = True
+
+        garage_button = Button(text = "Garage", color = color.black, scale_y = 0.1, scale_x = 0.3, y = -0.1, parent = self.main_menu)
+
+        back_button_garage = Button(text = "<- Back", color = color.gray, scale_y = 0.05, scale_x = 0.2, y = 0.45, x = -0.65, parent = self.garage_menu)
+        
+        cars_menu_button = Button(text = "Cars", color = color.black, scale_y = 0.1, scale_x = 0.15, x = -0.7, y = -0.3, parent = self.garage_menu)
+        colours_menu_button = Button(text = "Colours", color = color.black, scale_y = 0.1, scale_x = 0.15, x = -0.5, y = -0.3, parent = self.garage_menu)
+        cosmetics_menu_button = Button(text = "Cosmetics", color = color.black, scale_y = 0.1, scale_x = 0.15, x = -0.3, y = -0.3, parent = self.garage_menu)
+
+        sports_car_button = Button(texture = "sports-car-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.7, alpha = 255, parent = self.cars_menu)
+        muscle_car_button = Button(texture = "muscle-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.5, alpha = 255, parent = self.cars_menu)
+        limo_button = Button(texture = "limo-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.3, alpha = 255, parent = self.cars_menu)
+        lorry_button = Button(texture = "lorry-icon.png", color = color.white, scale = (0.16, 0.1), y = -0.1, x = -0.7, alpha = 255, parent = self.cars_menu)
+        hatchback_button = Button(texture = "hatchback-icon.png", color = color.white, scale = (0.16, 0.1), y = -0.1, x = -0.5, alpha = 255, parent = self.cars_menu)
+        rally_car_button = Button(texture = "rally-icon.png", color = color.white, scale = (0.16, 0.1), y = -0.1, x = -0.3, alpha = 255, parent = self.cars_menu)
+
+        red_button = Button(color = color.red, scale_y = 0.1, scale_x = 0.15, y = 0.1, x = -0.7, parent = self.colours_menu)
+        blue_button = Button(color = color.cyan, scale_y = 0.1, scale_x = 0.15, y = 0.1, x = -0.5, parent = self.colours_menu)
+        green_button = Button(color = color.lime, scale_y = 0.1, scale_x = 0.15, y = 0.1, x = -0.3, parent = self.colours_menu)
+        orange_button = Button(color = color.orange, scale_y = 0.1, scale_x = 0.15, y = -0.1, x = -0.7, parent = self.colours_menu)
+        black_button = Button(color = color.black, scale_y = 0.1, scale_x = 0.15, y = -0.1, x = -0.5, parent = self.colours_menu)
+        white_button = Button(color = color.white, scale_y = 0.1, scale_x = 0.15, y = -0.1, x = -0.3, parent = self.colours_menu)
+
+        viking_helmet_button = Button(texture = "viking_helmet-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.7, alpha = 255, parent = self.cosmetics_menu)
+        duck_button = Button(texture = "duck-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.5, alpha = 255, parent = self.cosmetics_menu)
+        banana_button = Button(texture = "banana-icon.png", color = color.white, scale = (0.16, 0.1), y = 0.1, x = -0.3, alpha = 255, parent = self.cosmetics_menu)
+        surfinbird_button = Button(texture = "surfinbird-icon.png", color = color.white, scale = (0.16, 0.1), y = -0.1, x = -0.7, alpha = 255, parent = self.cosmetics_menu)
+
+        self.garage_name_text = Text("Surfin Bird", scale = 1.5, color = color.white, line_height = 2, origin = 0, x = -0.5, y = -0.4, parent = self.garage_menu)
+        self.garage_name_text.disable()
+
+        self.garage_unlocked_text = Text("Beat Mandaw in Every Track", scale = 1.5, color = color.orange, line_height = 2, origin = 0, y = 0.3, parent = self.garage_menu)
+        self.garage_unlocked_text.disable()
+
+        garage_button.on_click = Func(garage_button_func)
+        cars_menu_button.on_click = Func(cars_menu)
+        colours_menu_button.on_click = Func(colours_menu)
+        cosmetics_menu_button.on_click = Func(cosmetics_menu)
+
+        back_button_garage.on_click = Func(back_garage)
+        
+        sports_car_button.on_click = Func(sports_car)
+        muscle_car_button.on_click = Func(muscle_car)
+        limo_button.on_click = Func(limo)
+        lorry_button.on_click = Func(lorry)
+        hatchback_button.on_click = Func(hatchback)
+        rally_car_button.on_click = Func(rally)
+
+        sports_car_button.on_mouse_enter = Func(sports_hover)
+        sports_car_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        muscle_car_button.on_mouse_enter = Func(muscle_hover)
+        muscle_car_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        limo_button.on_mouse_enter = Func(limo_hover)
+        limo_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        lorry_button.on_mouse_enter = Func(lorry_hover)
+        lorry_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        hatchback_button.on_mouse_enter = Func(hatchback_hover)
+        hatchback_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        rally_car_button.on_mouse_enter = Func(rally_hover)
+        rally_car_button.on_mouse_exit = Func(self.garage_name_text.disable)
+
+        red_button.on_click = Func(change_colour, "red")
+        blue_button.on_click = Func(change_colour, "blue")
+        green_button.on_click = Func(change_colour, "green")
+        orange_button.on_click = Func(change_colour, "orange")
+        black_button.on_click = Func(change_colour, "black")
+        white_button.on_click = Func(change_colour, "white")
+
+        viking_helmet_button.on_click = Func(viking_helmet)
+        duck_button.on_click = Func(duck)
+        banana_button.on_click = Func(banana)
+        surfinbird_button.on_click = Func(surfinbird)
+
+        viking_helmet_button.on_mouse_enter = Func(viking_hover)
+        viking_helmet_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        duck_button.on_mouse_enter = Func(duck_hover)
+        duck_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        banana_button.on_mouse_enter = Func(banana_hover)
+        banana_button.on_mouse_exit = Func(self.garage_name_text.disable)
+        surfinbird_button.on_mouse_enter = Func(surfinbird_hover)
+        surfinbird_button.on_mouse_exit = Func(self.garage_name_text.disable)
+
+        
+
+    def garage_locked_text(self, warning):
+        self.garage_unlocked_text.enable()
+        self.garage_unlocked_text.text = warning
+        self.garage_unlocked_text.shake()
+        invoke(self.garage_unlocked_text.disable, delay = 1)
+
+    def update(self):
+        if not self.start_menu.enabled and not self.main_menu.enabled and not self.settings_menu.enabled and not self.race_menu.enabled and not self.maps_menu.enabled and not self.settings_menu.enabled and not self.garage_menu.enabled and not self.controls_menu.enabled and not self.host_menu.enabled and not self.server_menu.enabled and not self.created_server_menu.enabled and not self.video_menu.enabled and not self.gameplay_menu.enabled and not self.audio_menu.enabled and not self.quit_menu.enabled:
+            self.car.camera_follow = True
+        else:
+            self.car.camera_follow = False
+
+       
+            
+
+        # Set the camera's position and make the car rotate
+        if self.start_menu.enabled or self.host_menu.enabled or self.garage_menu.enabled or self.server_menu.enabled or self.quit_menu.enabled:
+            if not held_keys["right mouse"]:
+                if self.start_spin:
+                    self.car.rotation_y += 15 * time.dt
+            else:
+                self.car.rotation_y = mouse.x * 200
+
+            camera.position = lerp(camera.position, self.car.position + self.car.camera_offset, time.dt * self.car.camera_speed)
+
+            if self.start_menu.enabled or self.quit_menu.enabled:
+                self.car.camera_offset = (-25, 4, 0)
+                camera.rotation = (5, 90, 0)
+            elif self.host_menu.enabled:
+                self.car.camera_offset = (-25, 8, 0)
+                camera.rotation = (14, 90, 0)
+            else:
+                self.car.camera_offset = (-25, 6, 5)
+                camera.rotation = (10, 90, 0)
+        else:
+            if not self.car.camera_follow:
+                camera.rotation = (35, -20, 0)
+                camera.position = lerp(camera.position, self.car.position + (20, 40, -50), time.dt * self.car.camera_speed)
+
+        # If the host menu or server menu is enabled, save username
+        if self.host_menu.enabled or self.server_menu.enabled or self.created_server_menu.enabled:
+            with open(self.car.username_path, "w") as user:
+                if self.created_server_menu.enabled:
+                    user.write(self.username_created_server.text)
+                else:
+                    user.write(self.car.username.text)
+
+        # If multiplayer, start leaderboard
+        if self.car.multiplayer_update:
+            for menu in self.menus:
+                if menu.enabled == False:
+                    if self.sand_track.enabled or self.grass_track.enabled or self.snow_track.enabled or self.forest_track.enabled or self.savannah_track.enabled:
+                        invoke(self.start_leaderboard, delay = 0.1)
+                else:
+                    for l in self.leaderboard_texts:
+                        l.disable()
+        else:
+            for l in self.leaderboard_texts:
+                l.disable()
+            
+    def start_leaderboard(self):
+        for l in self.leaderboard_texts:
+            l.enable()
+
+        self.leaderboard_01.text = str(self.car.leaderboard_01)
+        self.leaderboard_02.text = str(self.car.leaderboard_02)
+        self.leaderboard_03.text = str(self.car.leaderboard_03)
+        self.leaderboard_04.text = str(self.car.leaderboard_04)
+        self.leaderboard_05.text = str(self.car.leaderboard_05)
+    
+    def input(self, key):
+        # Pause menu
+        if not self.start_menu.enabled and not self.main_menu.enabled and not self.server_menu.enabled and not self.settings_menu.enabled and not self.race_menu.enabled and not self.maps_menu.enabled and not self.settings_menu.enabled and not self.garage_menu.enabled and not self.audio_menu.enabled and not self.controls_menu.enabled and not self.host_menu.enabled and not self.created_server_menu.enabled and not self.video_menu.enabled and not self.gameplay_menu.enabled and not self.quit_menu.enabled:
+            if key == "escape":
+                self.pause_menu.enabled = not self.pause_menu.enabled
+                mouse.locked = not mouse.locked
+
+            self.start_spin = False
+
+            if self.car.reset_count_timer.enabled == False:
+                self.car.timer.enable()
+            else:
+                self.car.timer.disable()
+             
+            self.car.highscore.enable()
+            if self.car.gamemode == "time trial":
+                self.car.laps_text.enable()
+            elif self.car.gamemode == "drift":
+                self.car.drift_text.enable()
+                self.car.drift_timer.enable()
+        else:
+            self.car.timer.disable()
+            self.car.reset_count_timer.disable()
+            self.car.highscore.disable()
+            self.car.laps_text.disable()
+            self.car.drift_text.disable()
+            self.car.drift_timer.disable()
+            self.car.camera_speed = 8
+            self.start_spin = True
+
+        # Audio
+        if self.car.audio:
+            for menu in self.menus:
+                if menu.enabled:
+                    for i, e in enumerate(menu.children):
+                        if e.hovered and key == "left mouse down":
+                            self.click.volume = self.car.volume * 5
+                            self.click.play()
+        
+        if self.audio_menu.enabled:
+            self.car.volume = self.volume.value
+
+        # Quit Menu
+        if self.start_menu.enabled or self.quit_menu.enabled:
+            if key == "escape":
+                self.quit_menu.enabled = not self.quit_menu.enabled
+                self.start_menu.enabled = not self.start_menu.enabled
+
+        # Settings Menu
+        if key == "escape":
+            if self.settings_menu.enabled:
+                self.settings_menu.disable()
+                self.main_menu.enable()
+            elif self.video_menu.enabled:
+                self.video_menu.disable()
+                self.settings_menu.enable()
+            elif self.controls_menu.enabled:
+                self.controls_menu.disable()
+                self.settings_menu.enable()
+            elif self.gameplay_menu.enabled:
+                self.gameplay_menu.disable()
+                self.settings_menu.enable()
+            elif self.audio_menu.enabled:
+                self.audio_menu.disable()
+                self.settings_menu.enable()
+
+        if self.start_spin:
+            self.car.copy_normals = False
+        else:
+            self.car.copy_normals = True
